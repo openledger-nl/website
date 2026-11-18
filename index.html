@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ledger and Margin</title>
+<meta name="description" content="Ledger, a desktop app for your threads and deliverables. Margin, browser extensions for reviewing your app with Claude Code and for a cleaner GitHub.">
+<link rel="icon" href="img/favicon.png">
+<style>
+:root {
+  --face: #ece9d8; --edge: #003c74; --title-a: #0a246a; --title-b: #3a8cff;
+  --pane-a: #7ba2e7; --pane-b: #6375d6; --link: #0b44b8; --text: #000;
+  --ui: Tahoma, Verdana, "DejaVu Sans", Geneva, sans-serif;
+}
+* { box-sizing: border-box; }
+html { min-height: 100%; }
+body {
+  margin: 0; min-height: 100vh; padding: 28px 16px 72px; font: 13px/1.5 var(--ui); color: var(--text);
+  /* Photo from Unsplash (photo-1518717202715-9fa9d099f58a), free under the Unsplash License. */
+  background: #1f7fe0 url(img/background.avif) center bottom / cover no-repeat fixed;
+}
+a { color: var(--link); }
+a:hover { color: #e06c00; }
+.desktop { max-width: 900px; margin: 0 auto; }
+
+/* ---------- windows ---------- */
+.win {
+  margin: 0 0 28px; background: var(--face); border: 1px solid var(--edge); border-top: 0;
+  border-radius: 8px 8px 0 0; box-shadow: 3px 4px 10px rgba(0, 0, 40, .35); overflow: hidden;
+}
+.titlebar {
+  display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 5px 0 8px;
+  background: linear-gradient(#0997ff 0%, #0053ee 8%, #0050ee 40%, #06f 88%, #06f 93%, #005bff 95%, #003dd7 96%, #003dd7);
+  border-radius: 7px 7px 0 0; color: #fff; font: bold 13px/1 "Trebuchet MS", var(--ui); text-shadow: 1px 1px #0f1089;
+}
+.titlebar img { width: 16px; height: 16px; }
+.titlebar .t { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ctl { display: flex; gap: 2px; }
+.ctl span {
+  width: 21px; height: 21px; border: 1px solid #fff; border-radius: 3px; display: grid; place-items: center;
+  background: linear-gradient(135deg, #3c8cff, #1a5ee8 60%, #2a6df0); font: bold 12px/1 Verdana, sans-serif; text-shadow: none;
+}
+.ctl span.x { background: linear-gradient(135deg, #e88a6c, #d1451f 60%, #c0391a); }
+.menubar { display: flex; gap: 14px; padding: 3px 8px; border-bottom: 1px solid #c5c2b2; font-size: 12px; }
+.menubar u { text-decoration: underline; }
+.statusbar { display: flex; gap: 6px; padding: 3px 4px; border-top: 1px solid #c5c2b2; font-size: 11px; }
+.statusbar span { padding: 1px 6px; border: 1px solid; border-color: #aca899 #fff #fff #aca899; }
+.statusbar span:first-child { flex: 1; }
+
+/* ---------- explorer layout: task pane + content ---------- */
+.explorer { display: flex; min-height: 200px; }
+.pane { width: 210px; flex: none; padding: 12px 10px; background: linear-gradient(var(--pane-a), var(--pane-b)); }
+.group { margin-bottom: 12px; background: #d6dff7; border-radius: 4px 4px 0 0; overflow: hidden; }
+.group h4 {
+  margin: 0; padding: 5px 10px; font-size: 12px; color: #215dc6;
+  background: linear-gradient(90deg, #fff 30%, #c6d3f7); border-radius: 4px 4px 0 0;
+}
+.group h4.dark { color: #fff; background: linear-gradient(90deg, #0c32a8, #2a63de); }
+.group ul { list-style: none; margin: 0; padding: 7px 10px; }
+.group li { margin: 3px 0; font-size: 12px; }
+.group li a { color: #215dc6; text-decoration: none; }
+.group li a:hover { text-decoration: underline; color: #428eff; }
+.group p { margin: 0; padding: 7px 10px; font-size: 11px; color: #333; }
+.content { flex: 1; min-width: 0; padding: 18px 22px; background: #fff; border-left: 1px solid #aca899; }
+.content h2 { margin: 2px 0 6px; font: bold 18px "Trebuchet MS", var(--ui); color: #003399; }
+.content h3 { margin: 22px 0 4px; padding-bottom: 3px; font: bold 15px "Trebuchet MS", var(--ui); color: #003399; border-bottom: 1px solid #b0c4de; }
+.logo { display: block; height: 42px; width: auto; margin-bottom: 12px; }
+.lead { margin: 0 0 10px; color: #444; }
+ul.dots { margin: 0; padding-left: 18px; }
+ul.dots li { margin: 4px 0; list-style: square; }
+ul.dots li::marker { color: #3a8cff; }
+
+/* ---------- buttons ---------- */
+.btn {
+  display: inline-block; min-width: 78px; padding: 4px 12px; margin: 10px 6px 0 0; text-align: center;
+  font: 12px var(--ui); color: #000; text-decoration: none; cursor: pointer;
+  border: 1px solid var(--edge); border-radius: 3px;
+  background: linear-gradient(#fff, #ecebe6 85%, #d6d0c5);
+  box-shadow: inset -1px -1px #c3c1b4, inset 1px 1px #fff;
+}
+.btn:hover { color: #000; box-shadow: inset 0 0 0 2px #f9b33c; }
+.btn:active { background: linear-gradient(#e3e2da, #f2f1ec); }
+.btn.go { font-weight: bold; }
+
+/* ---------- welcome window ---------- */
+.welcome .content { border-left: 0; display: flex; gap: 18px; align-items: flex-start; }
+.welcome .icon { flex: none; display: grid; gap: 6px; }
+.welcome .icon img { width: 48px; height: 48px; }
+.welcome h1 { margin: 0 0 6px; font: bold 22px "Trebuchet MS", var(--ui); color: #003399; }
+.welcome p { margin: 0 0 6px; }
+
+/* ---------- command prompt ---------- */
+.cmdwin { margin-top: 12px; border: 1px solid var(--edge); border-top: 0; border-radius: 6px 6px 0 0; overflow: hidden; }
+.cmdwin .titlebar { height: 24px; font-size: 12px; }
+.cmd { display: flex; align-items: center; gap: 10px; padding: 10px; background: #000; color: #c0c0c0; font: 13px/1.4 "Lucida Console", "Courier New", monospace; }
+.cmd code { flex: 1; overflow-x: auto; white-space: nowrap; }
+.cmd .btn { margin: 0; min-width: 60px; }
+
+/* ---------- screenshot, balloon ---------- */
+.shotwin { margin-top: 16px; border: 1px solid var(--edge); border-top: 0; border-radius: 6px 6px 0 0; overflow: hidden; background: var(--face); }
+.shotwin .titlebar { height: 24px; font-size: 12px; }
+.shotwin img { display: block; width: 100%; height: auto; border-top: 1px solid #aca899; }
+.balloon {
+  display: inline-block; position: relative; margin: 2px 0 8px; padding: 6px 10px 6px 30px; font-size: 12px;
+  background: #ffffe1; border: 1px solid #000; border-radius: 6px;
+}
+.balloon::before { content: "i"; position: absolute; left: 8px; top: 6px; width: 15px; height: 15px; border-radius: 50%; background: #2a6df0; color: #fff; font: bold italic 11px/15px Georgia, serif; text-align: center; }
+
+/* ---------- marquee and footer ---------- */
+.ticker { overflow: hidden; white-space: nowrap; margin: 0 0 22px; padding: 3px 0; background: #ffffe1; border: 1px solid #000; font: bold 12px var(--ui); }
+.ticker span { display: inline-block; padding-left: 100%; animation: scroll 22s linear infinite; }
+@keyframes scroll { to { transform: translateX(-100%); } }
+@media (prefers-reduced-motion: reduce) { .ticker span { animation: none; padding-left: 10px; } }
+.small { text-align: center; color: #fff; font-size: 11px; text-shadow: 1px 1px 1px #003; }
+.small a { color: #fff; }
+
+/* ---------- taskbar ---------- */
+.taskbar {
+  position: fixed; left: 0; right: 0; bottom: 0; height: 34px; display: flex; align-items: center; gap: 4px; z-index: 10;
+  background: linear-gradient(#1f2f86 0, #3165c4 3%, #3682e5 6%, #4490e6 10%, #3883e5 12%, #2b71e0 15%, #2663da 18%, #235bd6 20%, #2258d5 23%, #2157d6 38%, #245ddb 54%, #2562df 86%, #245fdc 89%, #2158d4 92%, #1d4ec0 95%, #1941a5 98%);
+}
+.dl {
+  height: 34px; padding: 0 18px 0 12px; display: flex; align-items: center; gap: 6px; color: #fff; text-decoration: none;
+  font: bold italic 17px "Trebuchet MS", var(--ui); text-shadow: 1px 1px 2px #1a3c13;
+  background: radial-gradient(circle at 50% 0, #79c86c, #3c9a2f 50%, #2e8424); border-radius: 0 12px 12px 0; box-shadow: inset -2px 0 3px #1a5c12;
+}
+.dl:hover { color: #fff; filter: brightness(1.1); }
+.task {
+  height: 26px; width: 150px; display: flex; align-items: center; gap: 6px; padding: 0 8px; color: #fff; text-decoration: none; font-size: 12px;
+  background: linear-gradient(#3c81f3, #2869e0); border: 1px solid #1d4ec0; border-radius: 3px; box-shadow: inset 1px 1px #6aa2ff;
+}
+.task:hover { color: #fff; background: linear-gradient(#53a0ff, #3a7ff0); }
+.task img { width: 16px; height: 16px; }
+.tray {
+  margin-left: auto; height: 34px; display: flex; align-items: center; padding: 0 14px; color: #fff; font-size: 12px;
+  background: linear-gradient(#0c59b9, #139ee9 10%, #18b5f2 14%, #139beb 20%, #1290e8 50%, #0d8dea 80%, #0b7ad8 95%, #0a64bd);
+  border-left: 1px solid #092e7a; box-shadow: inset 1px 0 #18bbff;
+}
+
+@media (max-width: 700px) {
+  body { padding: 14px 8px 60px; }
+  .explorer { flex-direction: column; }
+  .pane { width: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .group { margin: 0; }
+  .content { border-left: 0; border-top: 1px solid #aca899; padding: 14px; }
+  .welcome .content { flex-direction: column; }
+  .menubar span:nth-child(n+4), .statusbar span:not(:first-child) { display: none; }
+  .task { display: none; }
+}
+@media (max-width: 420px) { .pane { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="desktop">
+
+<div class="win welcome">
+  <div class="titlebar"><img src="img/favicon.png" alt=""><span class="t">Welcome</span><span class="ctl" aria-hidden="true"><span>_</span><span>&#9633;</span><span class="x">&times;</span></span></div>
+  <div class="content">
+    <div class="icon"><img src="img/ledger-mark.svg" alt=""><img src="img/margin-mark.svg" alt=""></div>
+    <div>
+      <h1>Ledger and Margin</h1>
+      <p>A desktop app for your own thinking, and browser extensions that get things out of your way.</p>
+      <p>Built by us. Source on <a href="https://github.com/openledger-nl">GitHub</a>.</p>
+      <a class="btn" href="#ledger">Ledger</a><a class="btn" href="#margin">Margin</a>
+    </div>
+  </div>
+</div>
+
+<div class="ticker" aria-hidden="true"><span>*** Ledger 0.8.0 is out for Windows, macOS and Linux *** Browser Review 1.0.1 for Chrome and Firefox *** Margin for GitHub is on its way ***</span></div>
+
+<div class="win" id="ledger">
+  <div class="titlebar"><img src="img/ledger-mark.svg" alt=""><span class="t">Ledger</span><span class="ctl" aria-hidden="true"><span>_</span><span>&#9633;</span><span class="x">&times;</span></span></div>
+  <div class="menubar" aria-hidden="true"><span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>V</u>iew</span><span><u>F</u>avorites</span><span><u>T</u>ools</span><span><u>H</u>elp</span></div>
+  <div class="explorer">
+    <aside class="pane">
+      <div class="group"><h4 class="dark">Get Ledger</h4><ul>
+        <li><a href="https://github.com/openledger-nl/ledger/releases/latest">Download for Windows</a></li>
+        <li><a href="https://github.com/openledger-nl/ledger/releases/latest">Download for macOS</a></li>
+        <li><a href="https://github.com/openledger-nl/ledger/releases/latest">Download for Linux</a></li>
+      </ul></div>
+      <div class="group"><h4>Other places</h4><ul>
+        <li><a href="https://github.com/openledger-nl/ledger">Source code</a></li>
+        <li><a href="https://github.com/openledger-nl/ledger/releases">All releases</a></li>
+        <li><a href="#margin">Margin</a></li>
+      </ul></div>
+      <div class="group"><h4>Details</h4><p>.exe for Windows, .dmg for macOS, .deb, .rpm and .AppImage for Linux.</p></div>
+    </aside>
+    <div class="content">
+      <img class="logo" src="img/ledger-wordmark-on-light.svg" alt="Ledger" width="170" height="42">
+      <h2>Your thought process, separated from AI.</h2>
+      <p class="lead">A desktop app for Windows, macOS and Linux. Think in threads, ask for deliverables, give feedback on them and plan the work, per project.</p>
+      <ul class="dots">
+        <li><b>Threads</b>: one per topic, a timeline of notes, prompts, feedback and uploads.</li>
+        <li><b>Deliverables</b>: edit them in the app, publish fixed versions, give feedback on the whole file or on one passage.</li>
+        <li><b>Claude Code</b> runs your prompts, and every version records who made it: you or Claude.</li>
+        <li><b>Projects</b> with a board, user stories, templates and the people involved.</li>
+        <li><b>Plain files</b>: your vault is a folder of markdown files that also opens in Obsidian.</li>
+        <li><b>Sync</b> to a private GitHub repository, optionally encrypted (AES-256-GCM).</li>
+      </ul>
+      <a class="btn go" href="https://github.com/openledger-nl/ledger/releases/latest">Download</a><a class="btn" href="https://github.com/openledger-nl/ledger">Source</a>
+    </div>
+  </div>
+  <div class="statusbar"><span>Windows, macOS, Linux</span><span>Version 0.8.0</span></div>
+</div>
+
+<div class="win" id="margin">
+  <div class="titlebar"><img src="img/margin-mark.svg" alt=""><span class="t">Margin</span><span class="ctl" aria-hidden="true"><span>_</span><span>&#9633;</span><span class="x">&times;</span></span></div>
+  <div class="menubar" aria-hidden="true"><span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>V</u>iew</span><span><u>F</u>avorites</span><span><u>T</u>ools</span><span><u>H</u>elp</span></div>
+  <div class="explorer">
+    <aside class="pane">
+      <div class="group"><h4 class="dark">Browser Review</h4><ul>
+        <li><a href="https://github.com/openledger-nl/margin/releases/latest">Download</a></li>
+        <li><a href="https://github.com/openledger-nl/margin/tree/main/browser">Setup and source</a></li>
+      </ul></div>
+      <div class="group"><h4>Margin for GitHub</h4><ul>
+        <li><a href="https://github.com/openledger-nl/margin/pull/2">Source</a></li>
+      </ul></div>
+      <div class="group"><h4>Details</h4><p>Chrome and Firefox. Brave and Edge work too. Free and MIT licensed.</p></div>
+    </aside>
+    <div class="content">
+      <img class="logo" src="img/margin-wordmark-on-light.svg" alt="Margin" width="145" height="42">
+      <h2>Browser extensions for Chrome and Firefox.</h2>
+      <p class="lead">Brave and Edge work too. Free and MIT licensed.</p>
+
+      <h3>Browser Review</h3>
+      <p>Review your own dev app in the browser, and let Claude Code fix it.</p>
+      <ul class="dots">
+        <li><b>Comment</b> on the page or on one element, <b>remove</b> an element, or <b>edit</b> its text and CSS with a live preview.</li>
+        <li>Claude Code reads every comment over MCP, with the selector, HTML, source file and a screenshot, fixes it in your code and marks it ready for review.</li>
+        <li>You accept it or reopen it in the browser.</li>
+        <li>Runs on localhost and dev domains like <code>*.test</code>. Everything stays on your machine.</li>
+      </ul>
+      <a class="btn go" href="https://github.com/openledger-nl/margin/releases/latest">Download</a><a class="btn" href="https://github.com/openledger-nl/margin/tree/main/browser">Setup and source</a>
+      <p style="margin:14px 0 0">Then connect Claude Code once:</p>
+      <div class="cmdwin">
+        <div class="titlebar"><span class="t">Command Prompt</span></div>
+        <div class="cmd"><code>claude mcp add --scope user browser-review -- npx -y browser-review-mcp@latest</code><button class="btn" type="button" data-copy>Copy</button></div>
+      </div>
+      <div class="shotwin">
+        <div class="titlebar"><span class="t">browser-review.webp</span></div>
+        <img src="img/browser-review.webp" alt="The Browser Review side panel next to a page, with three threads Claude is working on" width="1200" height="964" loading="lazy" decoding="async">
+      </div>
+
+      <h3>Margin for GitHub</h3>
+      <div class="balloon">Not released yet</div>
+      <p>A GitHub homepage that shows your own work. No token: it uses the session you're logged in with.</p>
+      <ul class="dots">
+        <li>Your organizations, the repositories you pushed to last (with the branch), and all your repositories with search, filter and sort.</li>
+        <li>GitHub's side menu shows your recent pushes instead of "Top repositories".</li>
+        <li>Switches to hide Copilot, banners, sidebar sections and the footer.</li>
+      </ul>
+      <a class="btn" href="https://github.com/openledger-nl/margin/pull/2">Source</a>
+    </div>
+  </div>
+  <div class="statusbar"><span>Chrome, Firefox, Brave, Edge</span><span>Browser Review 1.0.1</span></div>
+</div>
+
+<p class="small">Best viewed in any browser. <a href="https://github.com/openledger-nl">github.com/openledger-nl</a></p>
+</div>
+
+<nav class="taskbar">
+  <a class="dl" href="https://github.com/openledger-nl/ledger/releases/latest">Download</a>
+  <a class="task" href="#ledger"><img src="img/ledger-mark.svg" alt="">Ledger</a>
+  <a class="task" href="#margin"><img src="img/margin-mark.svg" alt="">Margin</a>
+  <div class="tray"><span id="clock"></span></div>
+</nav>
+
+<script>
+document.querySelectorAll('[data-copy]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    navigator.clipboard.writeText(b.previousElementSibling.textContent).then(function () {
+      b.textContent = 'Copied';
+      setTimeout(function () { b.textContent = 'Copy'; }, 1500);
+    });
+  });
+});
+(function tick() {
+  var d = new Date();
+  document.getElementById('clock').textContent = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  setTimeout(tick, 15000);
+})();
+</script>
+</body>
+</html>
