@@ -1,23 +1,25 @@
 #!/bin/sh
 # Netlify build step: copies the installers of the newest Margin release (the Latest release of
-# openledger-nl/margin, same file names every version) into downloads/, and lists the ones that
-# exist in downloads/available.json for the page. The Firefox build is a signed .xpi once Mozilla
-# signs it, an unsigned zip until then; the page offers whichever is there.
+# openledger-nl/margin, same file names every version) into <dir> (default static/downloads/, served
+# by npm run dev and copied into build/), and lists
+# the ones that exist in <dir>/available.json for the page (src/lib/Install.svelte). The Firefox
+# build is a signed .xpi once Mozilla signs it, an unsigned zip until then; the page offers either.
 set -u
 base=https://github.com/openledger-nl/margin/releases/latest/download
-mkdir -p downloads
+dir=${1:-static/downloads}
+mkdir -p "$dir"
 list=""
 for ext in margin-browser-review margin-github; do
   for kind in firefox.xpi firefox.zip chrome.zip; do
     name="$ext-$kind"
-    if curl -fsSL --retry 3 -o "downloads/$name" "$base/$name"; then
+    if curl -fsSL --retry 3 -o "$dir/$name" "$base/$name"; then
       echo "got $name"
       list="$list${list:+,}\"$name\""
     else
-      rm -f "downloads/$name"
+      rm -f "$dir/$name"
       echo "no $name"
     fi
   done
 done
-echo "[$list]" > downloads/available.json
-cat downloads/available.json
+echo "[$list]" > "$dir/available.json"
+cat "$dir/available.json"

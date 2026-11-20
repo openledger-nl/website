@@ -1,7 +1,12 @@
-# The site is index.html and img/. The build only fetches the newest extension files into downloads/.
+# The site is SvelteKit, prerendered to plain files in build/. First the newest Margin installers are
+# fetched from the Latest release into static/downloads/ (scripts/fetch-extensions.sh), which the
+# build copies along.
 [build]
-  command = "sh scripts/fetch-extensions.sh"
-  publish = "."
+  command = "sh scripts/fetch-extensions.sh && npm run build"
+  publish = "build"
+
+[build.environment]
+  NODE_VERSION = "24"
 
 # Firefox offers to install an add-on in one click only when it is served as one.
 [[headers]]
