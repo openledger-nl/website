@@ -1,0 +1,10 @@
+# The site is index.html and img/. The build only fetches the newest extension files into downloads/.
+[build]
+  command = "sh scripts/fetch-extensions.sh"
+  publish = "."
+
+# Firefox offers to install an add-on in one click only when it is served as one.
+[[headers]]
+  for = "/downloads/*.xpi"
+  [headers.values]
+    Content-Type = "application/x-xpinstall"

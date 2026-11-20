@@ -106,6 +106,17 @@ ul.dots li::marker { color: #3a8cff; }
 }
 .balloon::before { content: "i"; position: absolute; left: 8px; top: 6px; width: 15px; height: 15px; border-radius: 50%; background: #2a6df0; color: #fff; font: bold italic 11px/15px Georgia, serif; text-align: center; }
 
+/* ---------- install box ---------- */
+.install { margin-top: 12px; padding: 10px 12px; background: #f6f5ef; border: 1px solid #c5c2b2; border-radius: 4px; }
+.install-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.install-btns .btn { margin: 0; }
+.install.is-firefox [data-for="firefox"] { order: -1; }
+.install .btn.alt { font-weight: normal; }
+.steps { margin: 10px 0 0; padding-left: 20px; font-size: 12px; color: #333; }
+.steps li { margin: 2px 0; }
+.steps[data-steps="firefox-zip"], .install.is-firefox .steps[data-steps="chrome"] { display: none; }
+.install.is-firefox.ff-zip .steps[data-steps="firefox-zip"] { display: block; }
+
 /* ---------- marquee and footer ---------- */
 .ticker { overflow: hidden; white-space: nowrap; margin: 0 0 22px; padding: 3px 0; background: #ffffe1; border: 1px solid #000; font: bold 12px var(--ui); }
 .ticker span { display: inline-block; padding-left: 100%; animation: scroll 22s linear infinite; }
@@ -166,7 +177,7 @@ ul.dots li::marker { color: #3a8cff; }
   </div>
 </div>
 
-<div class="ticker" aria-hidden="true"><span>*** Ledger 0.8.0 is out for Windows, macOS and Linux *** Browser Review 1.0.1 for Chrome and Firefox *** Margin for GitHub is on its way ***</span></div>
+<div class="ticker" aria-hidden="true"><span>*** Ledger 0.8.0 is out for Windows, macOS and Linux *** Margin Browser Review 1.1.0 for Chrome and Firefox *** New: Margin for GitHub 0.4.0, a GitHub homepage with your own work ***</span></div>
 
 <div class="win" id="ledger">
   <div class="titlebar"><img src="img/ledger-mark.svg" alt=""><span class="t">Ledger</span><span class="ctl" aria-hidden="true"><span>_</span><span>&#9633;</span><span class="x">&times;</span></span></div>
@@ -209,11 +220,13 @@ ul.dots li::marker { color: #3a8cff; }
   <div class="explorer">
     <aside class="pane">
       <div class="group"><h4 class="dark">Browser Review</h4><ul>
-        <li><a href="https://github.com/openledger-nl/margin/releases/latest">Download</a></li>
-        <li><a href="https://github.com/openledger-nl/margin/tree/main/browser">Setup and source</a></li>
+        <li><a href="#browser-review">Install</a></li>
+        <li><a href="https://github.com/openledger-nl/margin/tree/main/browser-review">Setup and source</a></li>
+        <li><a href="https://github.com/openledger-nl/margin/releases">All releases</a></li>
       </ul></div>
-      <div class="group"><h4>Margin for GitHub</h4><ul>
-        <li><a href="https://github.com/openledger-nl/margin/pull/2">Source</a></li>
+      <div class="group"><h4 class="dark">Margin for GitHub</h4><ul>
+        <li><a href="#margin-github">Install</a></li>
+        <li><a href="https://github.com/openledger-nl/margin/tree/main/github">Source</a></li>
       </ul></div>
       <div class="group"><h4>Details</h4><p>Chrome and Firefox. Brave and Edge work too. Free and MIT licensed.</p></div>
     </aside>
@@ -222,7 +235,7 @@ ul.dots li::marker { color: #3a8cff; }
       <h2>Browser extensions for Chrome and Firefox.</h2>
       <p class="lead">Brave and Edge work too. Free and MIT licensed.</p>
 
-      <h3>Browser Review</h3>
+      <h3 id="browser-review">Margin Browser Review</h3>
       <p>Review your own dev app in the browser, and let Claude Code fix it.</p>
       <ul class="dots">
         <li><b>Comment</b> on the page or on one element, <b>remove</b> an element, or <b>edit</b> its text and CSS with a live preview.</li>
@@ -230,29 +243,57 @@ ul.dots li::marker { color: #3a8cff; }
         <li>You accept it or reopen it in the browser.</li>
         <li>Runs on localhost and dev domains like <code>*.test</code>. Everything stays on your machine.</li>
       </ul>
-      <a class="btn go" href="https://github.com/openledger-nl/margin/releases/latest">Download</a><a class="btn" href="https://github.com/openledger-nl/margin/tree/main/browser">Setup and source</a>
-      <p style="margin:14px 0 0">Then connect Claude Code once:</p>
+      <div class="install" data-ext="browser-review">
+        <div class="install-btns">
+          <a class="btn go" data-for="chrome" href="https://github.com/openledger-nl/margin/releases/tag/browser-review-latest">Download for Chrome, Brave, Edge</a>
+          <a class="btn go" data-for="firefox" href="https://github.com/openledger-nl/margin/releases/tag/browser-review-latest">Add to Firefox</a>
+        </div>
+        <ol class="steps" data-steps="chrome">
+          <li>Unzip the download into a folder you keep.</li>
+          <li>Open <code>chrome://extensions</code> and turn on <b>Developer mode</b>.</li>
+          <li>Click <b>Load unpacked</b> and pick that folder.</li>
+        </ol>
+        <ol class="steps" data-steps="firefox-zip">
+          <li>Open <code>about:debugging#/runtime/this-firefox</code>.</li>
+          <li>Click <b>Load Temporary Add-on</b> and pick the downloaded zip. It stays until Firefox closes; a signed version that installs for good is on its way.</li>
+        </ol>
+      </div>
+      <p style="margin:14px 0 0">Then connect Claude Code once (<a href="https://github.com/openledger-nl/margin/tree/main/browser-review">setup and source</a>):</p>
       <div class="cmdwin">
         <div class="titlebar"><span class="t">Command Prompt</span></div>
         <div class="cmd"><code>claude mcp add --scope user browser-review -- npx -y browser-review-mcp@latest</code><button class="btn" type="button" data-copy>Copy</button></div>
       </div>
       <div class="shotwin">
         <div class="titlebar"><span class="t">browser-review.webp</span></div>
-        <img src="img/browser-review.webp" alt="The Browser Review side panel next to a page, with three threads Claude is working on" width="1200" height="964" loading="lazy" decoding="async">
+        <img src="img/browser-review.webp" alt="The Margin Browser Review side panel next to a page, with three threads Claude is working on" width="1200" height="964" loading="lazy" decoding="async">
       </div>
 
-      <h3>Margin for GitHub</h3>
-      <div class="balloon">Not released yet</div>
+      <h3 id="margin-github">Margin for GitHub</h3>
       <p>A GitHub homepage that shows your own work. No token: it uses the session you're logged in with.</p>
       <ul class="dots">
         <li>Your organizations, the repositories you pushed to last (with the branch), and all your repositories with search, filter and sort.</li>
         <li>GitHub's side menu shows your recent pushes instead of "Top repositories".</li>
         <li>Switches to hide Copilot, banners, sidebar sections and the footer.</li>
       </ul>
-      <a class="btn" href="https://github.com/openledger-nl/margin/pull/2">Source</a>
+      <div class="install" data-ext="margin-github">
+        <div class="install-btns">
+          <a class="btn go" data-for="chrome" href="https://github.com/openledger-nl/margin/releases/tag/margin-github-latest">Download for Chrome, Brave, Edge</a>
+          <a class="btn go" data-for="firefox" href="https://github.com/openledger-nl/margin/releases/tag/margin-github-latest">Add to Firefox</a>
+        </div>
+        <ol class="steps" data-steps="chrome">
+          <li>Unzip the download into a folder you keep.</li>
+          <li>Open <code>chrome://extensions</code> and turn on <b>Developer mode</b>.</li>
+          <li>Click <b>Load unpacked</b> and pick that folder.</li>
+        </ol>
+        <ol class="steps" data-steps="firefox-zip">
+          <li>Open <code>about:debugging#/runtime/this-firefox</code>.</li>
+          <li>Click <b>Load Temporary Add-on</b> and pick the downloaded zip. It stays until Firefox closes; a signed version that installs for good is on its way.</li>
+        </ol>
+      </div>
+      <a class="btn" href="https://github.com/openledger-nl/margin/tree/main/github">Source</a>
     </div>
   </div>
-  <div class="statusbar"><span>Chrome, Firefox, Brave, Edge</span><span>Browser Review 1.0.1</span></div>
+  <div class="statusbar"><span>Chrome, Firefox, Brave, Edge</span><span>Browser Review 1.1.0, for GitHub 0.4.0</span></div>
 </div>
 
 <p class="small">Best viewed in any browser. <a href="https://github.com/openledger-nl">github.com/openledger-nl</a></p>
@@ -274,6 +315,28 @@ document.querySelectorAll('[data-copy]').forEach(function (b) {
     });
   });
 });
+// Install boxes: the newest files come from downloads/ (fetched at deploy, see netlify.toml), else the release page.
+(function () {
+  var firefox = /firefox/i.test(navigator.userAgent);
+  fetch('downloads/available.json').then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; }).then(function (have) {
+    document.querySelectorAll('.install').forEach(function (box) {
+      var ext = box.getAttribute('data-ext');
+      var has = function (kind) { return have.indexOf(ext + '-' + kind) >= 0; };
+      var ff = box.querySelector('[data-for="firefox"]'), cr = box.querySelector('[data-for="chrome"]');
+      if (has('firefox.xpi')) {
+        ff.href = 'downloads/' + ext + '-firefox.xpi';
+      } else if (has('firefox.zip')) {
+        ff.href = 'downloads/' + ext + '-firefox.zip';
+        ff.setAttribute('download', '');
+        ff.textContent = 'Download for Firefox';
+        box.classList.add('ff-zip');
+      }
+      if (has('chrome.zip')) { cr.href = 'downloads/' + ext + '-chrome.zip'; cr.setAttribute('download', ''); }
+      box.classList.add(firefox ? 'is-firefox' : 'is-chrome');
+      (firefox ? cr : ff).classList.add('alt');
+    });
+  });
+})();
 (function tick() {
   var d = new Date();
   document.getElementById('clock').textContent = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
